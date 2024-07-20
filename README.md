@@ -11,7 +11,4 @@ Analisis Tim yang Komprehensif:
 Komposisi Tim: Lihat komposisi tim Anda berdasarkan lane dan role yang dipilih.
 Potensi Counter Pick: Identifikasi hero yang dapat dicounter oleh hero yang dipilih oleh lawan.
 Rekomendasi Tim: Dapatkan saran strategi berdasarkan hero yang dipilih untuk memperkuat tim Anda.
-Rekomendasi Strategis:
 
-Pentingnya Tank: Sistem akan memberi tahu jika tim Anda membutuhkan hero tank untuk meningkatkan pertahanan.
-Crowd Control (CC): Dapatkan saran tambahan jika tim Anda kekurangan kemampuan crowd control untuk mengatasi musuh.
