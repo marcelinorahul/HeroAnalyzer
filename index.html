@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin: 20px 0;
+        }
+
+        .container-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .flex-item {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 20px;
+            width: 300px;
+            text-align: left;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            margin: 0 0 10px;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        select,
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        select {
+            background-color: #fff;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        select:focus,
+        input[type="text"]:focus {
+            border-color: #0056b3;
+            outline: none;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container select::after,
+        .input-container input[type="text"]::after {
+            content: '▼';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #333;
+        }
+
+        input[type="text"] {
+            padding-right: 30px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .results-container h2 {
+            font-size: 1.5em;
+            color: #007bff;
+            margin-top: 0;
+        }
+
+        .results-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .results-container ul li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        #komposisiTim,
+        #counterPick,
+        #rekomendasiTim {
+            background-color: #ffffff;
+            color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #komposisiTim h2,
+        #counterPick h2,
+        #rekomendasiTim h2 {
+            color: #007bff;
+            margin: 0 0 10px;
+        }
+
+        #komposisiTim ul,
+        #counterPick ul,
+        #rekomendasiTim ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #komposisiTim ul li,
+        #counterPick ul li,
+        #rekomendasiTim ul li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        #komposisiTim ul li:last-child,
+        #counterPick ul li:last-child,
+        #rekomendasiTim ul li:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>HeroAnalyzer (Mobile Legends)</h1>
+
+    <div class="container-flex">
+        <div class="flex-item">
+            <div class="section">
+                <h2>EXP Lane</h2>
+                <input type="text" id="EXP Lane" oninput="updateHeroDetails('EXP Lane')" placeholder="Masukkan nama hero">
+            </div>
+
+            <div class="section">
+                <h2>Lane Gold</h2>
+                <input type="text" id="Gold Lane" oninput="updateHeroDetails('Gold Lane')"
+                    placeholder="Masukkan nama hero">
+            </div>
+
+            <div class="section">
+                <h2>Lane Mid</h2>
+                <input type="text" id="Mid Lane" oninput="updateHeroDetails('Mid Lane')" placeholder="Masukkan nama hero">
+            </div>
+
+            <div class="section">
+                <h2>Jungler</h2>
+                <input type="text" id="Jungler/Core" oninput="updateHeroDetails('Jungler/Core')" placeholder="Masukkan nama hero">
+            </div>
+
+            <div class="section">
+                <h2>Roam</h2>
+                <input type="text" id="Roam/Sup" oninput="updateHeroDetails('Roam/Sup')" placeholder="Masukkan nama hero">
+            </div>
+
+            <button onclick="analyzeTeam()">Analisis Tim</button>
+        </div>
+
+        <div class="flex-item">
+            <div id="detailHero" class="section">
+                <h2>Detail Hero</h2>
+                <p>Pilih hero untuk melihat detailnya.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="komposisiTim" class="section"></div>
+    <div id="counterPick" class="section"></div>
+    <div id="rekomendasiTim" class="section"></div>
+
+    <script>
+        const heroData = {
+            "EXP Lane": ["Aldous", "Alpha", "Argus", "Badang", "Barats", "Bane", "Chou", "Dyrroth", "Esmeralda", "Fredrinn", "Gatotkaca", "Gloo", "Guinevere", "Hilda", "Jawhead", "Khaleed", "Lapu-Lapu", "Leomord", "Masha", "Minsitthar", "Paquito", "Phoveus", "Ruby", "Silvanna", "Sun", "Terizla", "Thamuz", "X.Borg", "Yu Zhong", "Yin", "Zilong"],
+            "Gold Lane": ["Beatrix", "Brody", "Bruno", "Claude", "Clint", "Granger", "Hanabi", "Irithel", "Karrie", "Kimmy", "Layla", "Lesley", "Melissa", "Miya", "Moskov", "Popol and Kupa", "Roger", "Wanwan", "Yi Sun-shin"],
+            "Mid Lane": ["Alice", "Aurora", "Cecilion", "Chang'e", "Cyclops", "Eudora", "Gord", "Harith", "Harley", "Kadita", "Kagura", "Luo Yi", "Lunox", "Lylia", "Nana", "Odette", "Pharsa", "Vale", "Valentina", "Vexana", "Xavier", "Yve", "Zhask"],
+            "Jungler/Core": ["Aamon", "Akai", "Alucard", "Balmond", "Baxia", "Benedetta", "Fanny", "Freya", "Gusion", "Hanzo", "Hayabusa", "Helcurt", "Joy", "Karina", "Lancelot", "Ling", "Martis", "Natalia", "Saber", "Selena"],
+            "Roam/sup": ["Angela", "Atlas", "Belerick", "Carmilla", "Diggie", "Estes", "Faramis", "Floryn", "Franco", "Grock", "Hylos", "Johnson", "Kaja", "Khufra", "Lolita", "Mathilda", "Minotaur", "Rafaela", "Tigreal", "Uranus"]
+        };
+
+        const heroDetails = {
+            "Chou": {
+                description: "Fighter serbaguna dengan CC kuat dan mobilitas tinggi.",
+                counters: ["Khufra", "Minsitthar", "Kaja"],
+                counteredBy: ["Valir", "Diggie", "Guinevere"]
+            },
+            "Beatrix": {
+                description: "Marksman dengan pilihan senjata yang beragam untuk situasi berbeda.",
+                counters: ["Miya", "Layla", "Hanabi"],
+                counteredBy: ["Lancelot", "Hayabusa", "Natalia"]
+            },
+            "Aldous": {
+                description: "Fighter dengan damage burst tinggi yang dapat mengunci satu target dan menghabisinya.",
+                counters: ["Beatrix", "Layla", "Miya"],
+                counteredBy: ["Khufra", "Chou", "Jawhead"]
+            },
+            "Esmeralda": {
+                description: "Mage tank dengan kemampuan untuk menyerap shield musuh dan menggunakan shield sendiri.",
+                counters: ["Harith", "X.Borg", "Thamuz"],
+                counteredBy: ["Karrie", "Dyrroth", "Hanzo"]
+            },
+            "Lancelot": {
+                description: "Assassin dengan mobilitas tinggi dan kemampuan burst damage.",
+                counters: ["Clint", "Layla", "Hanabi"],
+                counteredBy: ["Khufra", "Chou", "Diggie"]
+            },
+            "Wanwan": {
+                description: "Marksman dengan mobilitas tinggi dan burst damage yang dapat mengunci musuh dengan weakness point.",
+                counters: ["Miya", "Layla", "Hanabi"],
+                counteredBy: ["Natalia", "Hayabusa", "Lancelot"]
+            },
+            "Khufra": {
+                description: "Tank dengan CC yang kuat dan kemampuan untuk menghambat mobilitas musuh.",
+                counters: ["Fanny", "Lancelot", "Ling"],
+                counteredBy: ["Diggie", "Valir", "X.Borg"]
+            },
+            "Aamon": {
+                description: "Assassin dengan kemampuan untuk menjadi tak terlihat dan memberikan burst damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Tank", "Khufra", "Saber"]
+            },
+            "Akai": {
+                description: "Tank dengan kemampuan untuk mengunci musuh dengan ultimate skill-nya.",
+                counters: ["Assassin", "Fighter", "Squishy heroes"],
+                counteredBy: ["Marksman", "Mage", "Anti-CC"]
+            },
+            "Alucard": {
+                description: "Fighter dengan lifesteal tinggi dan damage besar.",
+                counters: ["Marksman", "Mage", "Squishy heroes"],
+                counteredBy: ["Tank", "Khufra", "Chou"]
+            },
+            "Alice": {
+                description: "Mage dengan kemampuan untuk menyerap HP musuh dan memberikan damage area.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Burst damage heroes", "Anti-heal", "Silvanna"]
+            },
+            "Alpha": {
+                description: "Fighter dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Tank", "Anti-CC", "Burst damage"]
+            },
+            "Angela": {
+                description: "Support dengan kemampuan untuk menyembuhkan dan memberikan shield kepada timnya.",
+                counters: ["Burst damage heroes", "Squishy heroes"],
+                counteredBy: ["Anti-heal", "Burst damage", "Assassin"]
+            },
+            "Argus": {
+                description: "Fighter dengan kemampuan untuk menjadi tak terkalahkan untuk sementara waktu.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Tank", "Burst damage", "CC"]
+            },
+            "Atlas": {
+                description: "Tank dengan kemampuan untuk menarik musuh ke dirinya dan memberikan damage area.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Aurora": {
+                description: "Mage dengan kemampuan untuk membekukan musuh dan memberikan burst damage.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Anti-CC", "Tank", "Burst damage"]
+            },
+            "Badang": {
+                description: "Fighter dengan kemampuan untuk memberikan damage area dan mengunci musuh.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Tank", "Anti-CC", "Burst damage"]
+            },
+            "Balmond": {
+                description: "Fighter dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Tank", "Anti-CC", "Burst damage"]
+            },
+            "Bane": {
+                description: "Fighter dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Tank", "Anti-CC", "Burst damage"]
+            },
+            "Barats": {
+                description: "Fighter/Tank dengan kemampuan untuk menjadi lebih besar dan memberikan damage area.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Baxia": {
+                description: "Tank dengan kemampuan untuk mengurangi efek healing musuh dan memberikan damage area.",
+                counters: ["Healing heroes", "Squishy heroes", "Mage"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Belerick": {
+                description: "Tank dengan kemampuan untuk memberikan damage kepada musuh yang menyerangnya.",
+                counters: ["Squishy heroes", "Marksman", "Mage"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Benedetta": {
+                description: "Assassin dengan mobilitas tinggi dan kemampuan untuk memberikan burst damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Bruno": {
+                description: "Marksman dengan burst damage tinggi dan kemampuan untuk memberikan critical damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Assassin", "Burst damage", "CC"]
+            },
+            "Carmilla": {
+                description: "Support/Tank dengan kemampuan untuk memberikan damage area dan menyerap HP musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Cecilion": {
+                description: "Mage dengan kemampuan untuk memberikan damage area dan sustain mana.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Chang'e": {
+                description: "Mage dengan kemampuan untuk memberikan damage area dan slow kepada musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Claude": {
+                description: "Marksman dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Clint": {
+                description: "Marksman dengan burst damage tinggi dan kemampuan untuk memberikan critical damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Assassin", "Burst damage", "CC"]
+            },
+            "Cyclops": {
+                description: "Mage dengan kemampuan untuk memberikan damage area dan lock musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Diggie": {
+                description: "Support dengan kemampuan untuk menghilangkan efek CC pada timnya dan memberikan damage area.",
+                counters: ["CC heroes", "Squishy heroes", "Mage"],
+                counteredBy: ["Burst damage", "Assassin", "Anti-CC"]
+            },
+            "Dyrroth": {
+                description: "Fighter dengan burst damage tinggi dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Estes": {
+                description: "Support dengan kemampuan untuk menyembuhkan timnya dan memberikan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-heal", "Burst damage", "Assassin"]
+            },
+            "Eudora": {
+                description: "Mage dengan burst damage tinggi dan kemampuan untuk memberikan CC.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Fanny": {
+                description: "Assassin dengan mobilitas tinggi dan kemampuan untuk memberikan burst damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Faramis": {
+                description: "Support dengan kemampuan untuk menghidupkan kembali timnya dan memberikan damage area.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Floryn": {
+                description: "Support dengan kemampuan untuk menyembuhkan timnya dan memberikan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-heal", "Burst damage", "Assassin"]
+            },
+            "Franco": {
+                description: "Tank dengan kemampuan untuk menarik musuh ke dirinya dan memberikan CC.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Freya": {
+                description: "Fighter dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Gatotkaca": {
+                description: "Tank dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Gord": {
+                description: "Mage dengan kemampuan untuk memberikan damage area dan slow kepada musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Granger": {
+                description: "Marksman dengan burst damage tinggi dan kemampuan untuk memberikan critical damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Assassin", "Burst damage", "CC"]
+            },
+            "Grock": {
+                description: "Tank dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Guinevere": {
+                description: "Fighter/Mage dengan kemampuan untuk memberikan burst damage dan CC.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Gusion": {
+                description: "Assassin/Mage dengan burst damage tinggi dan mobilitas tinggi.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Hanabi": {
+                description: "Marksman dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Hanzo": {
+                description: "Assassin dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Harith": {
+                description: "Mage dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Harley": {
+                description: "Mage/Assassin dengan burst damage tinggi dan mobilitas tinggi.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Hayabusa": {
+                description: "Assassin dengan mobilitas tinggi dan kemampuan untuk memberikan burst damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Helcurt": {
+                description: "Assassin dengan kemampuan untuk memberikan burst damage dan silence musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Hilda": {
+                description: "Fighter/Tank dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Hylos": {
+                description: "Tank dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Irithel": {
+                description: "Marksman dengan kemampuan untuk memberikan damage area dan mobilitas tinggi.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Jawhead": {
+                description: "Fighter dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Johnson": {
+                description: "Tank dengan kemampuan untuk memberikan damage area dan stun musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Kadita": {
+                description: "Mage dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Kagura": {
+                description: "Mage dengan kemampuan untuk memberikan burst damage dan mobilitas tinggi.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Kaja": {
+                description: "Fighter/Support dengan kemampuan untuk memberikan burst damage dan CC.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Karina": {
+                description: "Assassin dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Karrie": {
+                description: "Marksman dengan kemampuan untuk memberikan true damage dan mobilitas tinggi.",
+                counters: ["Tank", "Fighter", "Sustain heroes"],
+                counteredBy: ["Assassin", "Burst damage", "CC"]
+            },
+            "Kimmy": {
+                description: "Marksman/Mage dengan kemampuan untuk memberikan damage area dan mobilitas tinggi.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Kimi": {
+                description: "Marksman dengan kemampuan untuk memberikan damage area dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Lapu-Lapu": {
+                description: "Fighter dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Leomord": {
+                description: "Fighter dengan kemampuan untuk memberikan burst damage dan sustain.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Lesley": {
+                description: "Marksman dengan kemampuan untuk memberikan burst damage dan mobilitas tinggi.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            "Ling": {
+                description: "Assassin dengan mobilitas tinggi dan kemampuan untuk memberikan burst damage.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Tank"]
+            },
+            "Lolita": {
+                description: "Tank dengan kemampuan untuk memberikan shield kepada timnya dan CC musuh.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Marksman"]
+            },
+            "Luo Yi": {
+                description: "Mage dengan kemampuan untuk memberikan damage area dan teleportasi timnya.",
+                counters: ["Squishy heroes", "Mage", "Marksman"],
+                counteredBy: ["Anti-CC", "Burst damage", "Assassin"]
+            },
+            // Tambahkan detail untuk semua 125 hero di sini
+        };
+
+        function populateHeroOptions() {
+            for (const [lane, heroes] of Object.entries(heroData)) {
+                const select = document.getElementById(lane.toLowerCase().replace(' ', ''));
+                heroes.sort().forEach(hero => {
+                    const option = document.createElement('option');
+                    option.value = hero;
+                    option.textContent = hero;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function updateHeroDetails(laneId) {
+            const hero = document.getElementById(laneId).value;
+            const detail = heroDetails[hero];
+            let detailHtml = `<h2>Detail ${hero}</h2>`;
+            if (detail) {
+                detailHtml += `
+                    <p><strong>Deskripsi:</strong> ${detail.description}</p>
+                    <p><strong>Mengounter:</strong> ${detail.counters.join(', ')}</p>
+                    <p><strong>Dicounter oleh:</strong> ${detail.counteredBy.join(', ')}</p>
+                `;
+            } else {
+                detailHtml += `<p>Informasi detail untuk ${hero} tidak tersedia.</p>`;
+            }
+            document.getElementById('detailHero').innerHTML = detailHtml;
+        }
+
+        function analyzeTeam() {
+            const lanes = ['EXP Lane', 'Gold Lane', 'Mid Lane', 'Jungler/Core', 'Roam/Sup'];
+            let teamComposition = '<h2>Komposisi Tim Anda:</h2><ul>';
+            let counterPicks = '<h2>Potensi Counter Pick:</h2><ul>';
+            let teamRecommendations = '<h2>Rekomendasi Tim:</h2><ul>';
+
+            const selectedHeroes = lanes.map(lane => document.getElementById(lane).value);
+
+
+            // Menyusun komposisi tim dan potensi counter pick
+            lanes.forEach((lane, index) => {
+                const hero = selectedHeroes[index];
+                const laneName = lane.replace(/([A-Z])/g, ' $1').trim();
+                teamComposition += `<li>${laneName}: ${hero}</li>`;
+
+                if (heroDetails[hero]) {
+                    counterPicks += `<li>${hero} dapat dicounter oleh: ${heroDetails[hero].counteredBy.join(', ')}</li>`;
+                }
+            });
+
+            // Menyusun rekomendasi berdasarkan hero yang dipilih
+            const recommendations = {
+                tank: 'Pertimbangkan untuk menambahkan tank ke dalam komposisi tim Anda untuk pertahanan yang lebih baik.',
+                CC: 'Tim Anda mungkin membutuhkan lebih banyak kemampuan crowd control untuk mengatasi musuh.',
+                burst: 'Menambahkan hero dengan burst damage bisa membantu dalam melawan musuh yang memiliki pertahanan rendah.',
+                sustain: 'Hero dengan kemampuan sustain dapat membantu tim Anda bertahan lebih lama dalam pertarungan.',
+                damage: 'Pastikan tim Anda memiliki cukup damage dealer untuk menghadapi musuh secara efektif.'
+            };
+
+            const heroRoles = {
+                tank: hero => heroDetails[hero] && heroDetails[hero].description.includes('tank'),
+                CC: hero => heroDetails[hero] && heroDetails[hero].description.includes('CC'),
+                burst: hero => heroDetails[hero] && heroDetails[hero].description.includes('burst'),
+                sustain: hero => heroDetails[hero] && heroDetails[hero].description.includes('sustain'),
+                damage: hero => heroDetails[hero] && heroDetails[hero].description.includes('damage')
+            };
+
+            // Fungsi untuk memeriksa jika setidaknya satu hero dalam kategori ada di tim
+            const checkRolePresence = (role) => selectedHeroes.some(hero => heroRoles[role](hero));
+
+            Object.keys(recommendations).forEach(role => {
+                if (!checkRolePresence(role)) {
+                    teamRecommendations += `<li>${recommendations[role]}</li>`;
+                }
+            });
+
+            // Menyelesaikan dan menampilkan hasil analisis
+            teamComposition += '</ul>';
+            counterPicks += '</ul>';
+            teamRecommendations += '</ul>';
+
+            document.getElementById('komposisiTim').innerHTML = teamComposition;
+            document.getElementById('counterPick').innerHTML = counterPicks;
+            document.getElementById('rekomendasiTim').innerHTML = teamRecommendations;
+        }
+
+        populateHeroOptions();
+    </script>
+</body>
+
+</html>
